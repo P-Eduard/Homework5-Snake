@@ -97,15 +97,12 @@ $(document).ready(function()
         reset() // Restore the game to default.
         {
             clearInterval(this.running);
+            this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = [-1,-1];
             this.score = 0;
-            // if(!this.buttonControl)
-            //     $(document).off('keydown', this.setArrowControl);
-            // else
-            //     $(document).off('keydown', this.setWASDControl);
             this.buttonControl ? $(document).off('keydown', this.setWASDControl) : $(document).off('keydown', this.setArrowControl)
-            this.placeOnBoard();
+            this.updateBoard();
         }
       
         start() // Start the game.
@@ -119,32 +116,63 @@ $(document).ready(function()
             this.borderKill = this.getBorderKill();
             this.gameSpeed = this.getGameSpeed();
             this.buttonControl = this.getButtonControl();
+            this.timeouts = [];
             $('#playerName').html(this.playerName);
-            this.placeOnBoard();
-            // if(!this.buttonControl)
-            //     $(document).on('keydown', this.setArrowControl);
-            // else
-            //     $(document).on('keydown', this.setWASDControl);
             this.buttonControl ? $(document).on('keydown', this.setWASDControl) : $(document).on('keydown', this.setArrowControl);
             this.updateGameMode();
-            this.running = setInterval(this.move, 400 / this.gameSpeed);
+            this.move();
         }
       
-        placeOnBoard = () => // Update the board with the new position.
+        animate = () => // Create the animation for the snake.
+        {
+            let pos = this.position, pastPos = this.pastPosition, speed = 400 / this.gameSpeed;
+            for (let i = 0; i < pastPos.length; i++)
+            {
+                let dirDown = parseInt(pos[i][0]-pastPos[i][0]) * 50;
+                let dirRight = parseInt(pos[i][1]-pastPos[i][1]) * 50;
+                if(dirDown > 50) // Loop U -> D
+                {
+                    dirDown = -50;
+                    $(`.0-${pastPos[i][1]} > :first-child`).clone().appendTo(`.12-${pastPos[i][1]}`);
+                    $(`.12-${pastPos[i][1]} > :first-child`).animate({top: '-=50px'}, { duration: speed, queue: false, easing: "linear" });
+                }
+                if(dirDown < -50) // Loop D -> U
+                {
+                    dirDown = 50;
+                    $(`.11-${pastPos[i][1]} > :first-child`).clone().appendTo(`.-1-${pastPos[i][1]}`);
+                    $(`.-1-${pastPos[i][1]} > :first-child`).animate({top: '+=50px'}, { duration: speed, queue: false, easing: "linear" });
+                }
+                if(dirRight > 50) // Loop L -> R
+                {
+                    dirRight = -50;
+                    $(`.${pastPos[i][0]}-0 > :first-child`).clone().appendTo(`.${pastPos[i][0]}-12`);
+                    $(`.${pastPos[i][0]}-12 > :first-child`).animate({left: '-=50px'}, { duration: speed, queue: false, easing: "linear" });
+                }
+                if(dirRight < -50) // Loop R -> L
+                {
+                    dirRight = 50;
+                    $(`.${pastPos[i][0]}-11 > :first-child`).clone().appendTo(`.${pastPos[i][0]}--1`);
+                    $(`.${pastPos[i][0]}--1 > :first-child`).animate({left: '+=50px'}, { duration: speed, queue: false, easing: "linear" });
+                }
+                $(`.${pastPos[i][0]}-${pastPos[i][1]} > :first-child`).animate(
+                { 
+                    left: '+=' + dirRight + 'px',
+                    top: '+=' + dirDown + 'px',
+                }, { duration: speed, queue: false, easing: "linear" });
+            }
+        }
+
+        updateBoard = () => // Update the board with a new snake.
         {
             let pos = this.position;
-            $.each($('#my-game-grid').children().toArray(), function(index, box)
-            {
-                $(box).removeClass("my-little-dot my-full-dot my-empty-dot my-little-red-dot");
-            })
+            $('.my-position').html('');
             $.each(pos, function(index, spot)
             {
-                if(index === 0) $(`.${spot[0]}-${spot[1]}`).addClass("my-empty-dot");
-                else if(index === pos.length - 1) $(`.${spot[0]}-${spot[1]}`).addClass("my-little-dot");
-                else $(`.${spot[0]}-${spot[1]}`).addClass("my-full-dot");
+                if(index === 0) $(`.${spot[0]}-${spot[1]}`).html('<div class="w-100 h-100 position-relative my-empty-dot"></div>');
+                else if(index === pos.length - 1) $(`.${spot[0]}-${spot[1]}`).html('<div class="w-100 h-100 position-relative my-little-dot"></div>');
+                else $(`.${spot[0]}-${spot[1]}`).html('<div class="w-100 h-100 position-relative my-full-dot"></div>');
             })
-
-            $(`.${this.pip[0]}-${this.pip[1]}`).addClass('my-little-red-dot');
+            $(`.${this.pip[0]}-${this.pip[1]}`).html('<div class="w-100 h-100 position-relative my-little-red-dot"></div>');
         }
 
         loop(nextSpot) // Loop the snake around the border.
@@ -155,7 +183,7 @@ $(document).ready(function()
             if(nextSpot[1] < 0) nextSpot[1] = 11;
         }
 
-        collectPip(nextSpot) // Collect pips you run into.
+        moveSnake = (nextSpot) => // Modify the snake array and collect pips you run into.
         {
             if(nextSpot[0] === this.pip[0] && nextSpot[1] === this.pip[1])
             {
@@ -175,16 +203,18 @@ $(document).ready(function()
         {
             var nextSpot = this.next();
             this.direction = this.changeDirection.concat();
+            this.pastPosition = this.position.concat();
             if(!this.borderKill) this.loop(nextSpot);
             else if(nextSpot[0] > 11 || nextSpot[0] < 0 || nextSpot[1] > 11 || nextSpot[1] < 0) {this.fail(); return;}
             if(this.isPositionInSnake(nextSpot, this.position)) {this.fail(); return;}
-            this.collectPip(nextSpot);
-            this.placeOnBoard();
+            this.moveSnake(nextSpot);
+            this.animate();
+            this.timeouts.push(setTimeout(() => {this.updateBoard();}, 400 / this.gameSpeed));
+            this.timeouts.push(setTimeout(() => {this.move();}, 400 / this.gameSpeed));
         }
 
         fail = () => // The snake died.
         {
-            clearInterval(this.running);
             this.updateBest();
             alert("You lose!");
         }

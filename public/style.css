@@ -2,13 +2,15 @@ body
 {
     font-family: "Lucida Console", "Lucida Sans Typewriter", monaco, "Bitstream Vera Sans Mono", monospace;
     background-color: #272927;
+    /* background-color: #786b6b; */
     color: #e2e9e2;
-    zoom: 120%;
+    zoom: 119%;
 }
 .my-menu
 {
     min-height: 70px;
     margin-top: 17px;
+    z-index: 1;
 }
 .my-menu-item
 {
@@ -57,10 +59,15 @@ body
 {
     width: 23%;
     height: 100%;
+    z-index: 1;
 }
 .my-check-space
 {
     margin-right: -5px;
+}
+.my-game
+{
+    z-index: -1;
 }
 .my-game-grid
 {
@@ -69,6 +76,83 @@ body
     display: flex;
     flex-wrap: wrap;
     box-sizing: border-box;
+}
+#gameWindow
+{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    z-index: -1;
+}
+.my-game-frame
+{
+    width: 700px;
+    height: 700px;
+    border: 50px solid #272927;
+    position: absolute;
+    top: 82px;
+    left: 50%;
+    transform: translate(-50%);
+    z-index: -1;
+}
+.my-game-border
+{
+    width: 660px;
+    height: 650px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+#animationRowUp
+{
+    position: absolute;
+    width: 600px;
+    height: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    top: 82px;
+    left: 50%;
+    transform: translate(-50%);
+    z-index: -1;
+}
+#animationRowDown
+{
+    position: absolute;
+    width: 600px;
+    height: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    top: 732px;
+    left: 50%;
+    transform: translate(-50%);
+    z-index: -1;
+}
+#animationColRight
+{
+    position: absolute;
+    width: 50px;
+    height: 600px;
+    display: flex;
+    flex-wrap: wrap;
+    top: 132px;
+    left: 50%;
+    transform: translate(600%);
+    z-index: -1;
+}
+
+#animationColLeft
+{
+    position: absolute;
+    width: 50px;
+    height: 600px;
+    display: flex;
+    flex-wrap: wrap;
+    top: 132px;
+    left: 50%;
+    transform: translate(-700%);
+    z-index: -1;
 }
 .my-position
 {
