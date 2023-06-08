@@ -63,6 +63,10 @@ $(document).ready(function()
                 case 'ArrowRight':
                     if ((this.direction[0] !== 0 || this.direction[1] !== -1)) this.changeDirection = [0,1];
                     break;
+                case ' ':
+                    pauseFunction();
+                    this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
+                    break;
                 default:
                     break;
             }
@@ -84,6 +88,10 @@ $(document).ready(function()
                 case 'd':
                     if ((this.direction[0] !== 0 || this.direction[1] !== -1)) this.changeDirection = [0,1];
                     break;
+                case ' ':
+                    pauseFunction();
+                    this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
+                    break;
                 default:
                     break;
             }
@@ -96,24 +104,35 @@ $(document).ready(function()
       
         reset() // Restore the game to default.
         {
-            clearInterval(this.running);
+            keyboardStart();
             $('#modalLose').show();
             $('#modalWin').show();
+            $('#btnPause').attr('disabled', 'disabled');
+            $('#playerScore').html(0);
+            $('#modalScore').html(0);
             this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = [-1,-1];
             this.score = 0;
-            this.buttonControl ? $(document).off('keydown', this.setWASDControl) : $(document).off('keydown', this.setArrowControl)
+            this.buttonControl ? $(document).off('keydown', this.setWASDControl) : $(document).off('keydown', this.setArrowControl);
             this.updateBoard();
         }
       
-        start() // Start the game.
+        start(withDir = false) // Start the game.
         {
             this.playerName = this.getPlayerName();
+            $(document).off('keydown');
             $('#btnPause').removeAttr('disabled');
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = this.randomPip();
             this.direction = [0,1];
+            if(withDir)
+            {
+                if(withDir === 38) this.direction = [-1,0]; // Up
+                if(withDir === 40) this.direction = [1,0]; // Down
+                if(withDir === 87) this.direction = [-1,0]; // W
+                if(withDir === 83) this.direction = [1,0]; // S
+            }
             this.changeDirection = this.direction.concat();
             this.score = 0;
             this.borderKill = this.getBorderKill();
@@ -223,16 +242,13 @@ $(document).ready(function()
         fail = () => // The snake died.
         {
             this.updateBest();
-            // alert("You lose!");
             $('#modalWin').hide();
             $('#gameModal').modal('show');
         }
 
         win = () => // Filled the board.
         {
-            clearInterval(this.running);
             this.updateBest();
-            // alert("You win!");
             $('#modalLose').hide();
             $('#gameModal').modal('show');
         }
@@ -296,21 +312,45 @@ $(document).ready(function()
         isStart = !isStart;
     })
 
-    $('#btnPause').click(function() // Pause the game.
-    {
-        snakeGame.isPause = true;
-        $('#pauseModal').modal('show');
-    })
+    $('#btnPause').click(pauseFunction)
 
     $('#modalResume').click(function() // Resume the game.
     {
         $('#btnPause').removeAttr('disabled');
-        $('#btnPause').attr('disabled', 'disabled');
         snakeGame.isPause = false;
         snakeGame.timeouts.push(setTimeout(() => {snakeGame.move();}, 400 / Snake.gameSpeed));
     })
-    
 
+    function pauseFunction()
+    {
+        snakeGame.isPause = true;
+        $('#pauseModal').modal('show');
+    }
+
+    function keyboardStart()
+    {
+        $(document).on('keydown', function(event)
+        {
+            if ([37, 38, 39, 40].includes(event.which)) // Arrows.
+            {
+                $(document).off('keydown');
+                if($('#keySwitch').prop('checked'))$('#keySwitch').prop('checked', false);
+                $('#btnStartReset').text('Reset');
+                isStart = !isStart;
+                snakeGame.start(event.which);
+            }
+            if ([87, 65, 83, 68].includes(event.which)) // WASD.
+            {
+                $(document).off('keydown');
+                if(!$('#keySwitch').prop('checked'))$('#keySwitch').prop('checked', true);
+                $('#btnStartReset').text('Reset');
+                isStart = !isStart;
+                snakeGame.start(event.which);
+            }
+        });
+    }
+    
     const snakeGame = new Snake();
     setInitialOptions();
+    keyboardStart();
 });
