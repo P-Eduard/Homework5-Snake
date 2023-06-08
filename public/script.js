@@ -97,6 +97,8 @@ $(document).ready(function()
         reset() // Restore the game to default.
         {
             clearInterval(this.running);
+            $('#modalLose').show();
+            $('#modalWin').show();
             this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = [-1,-1];
@@ -108,6 +110,7 @@ $(document).ready(function()
         start() // Start the game.
         {
             this.playerName = this.getPlayerName();
+            $('#btnPause').removeAttr('disabled');
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = this.randomPip();
             this.direction = [0,1];
@@ -117,6 +120,7 @@ $(document).ready(function()
             this.gameSpeed = this.getGameSpeed();
             this.buttonControl = this.getButtonControl();
             this.timeouts = [];
+            this.isPause = false;
             $('#playerName').html(this.playerName);
             this.buttonControl ? $(document).on('keydown', this.setWASDControl) : $(document).on('keydown', this.setArrowControl);
             this.updateGameMode();
@@ -189,6 +193,7 @@ $(document).ready(function()
             {
                 this.score += 1;
                 $('#playerScore').html(this.score);
+                $('#modalScore').html(this.score);
                 this.position.unshift(nextSpot);
                 this.pip = this.randomPip();
             }
@@ -210,25 +215,35 @@ $(document).ready(function()
             this.moveSnake(nextSpot);
             this.animate();
             this.timeouts.push(setTimeout(() => {this.updateBoard();}, 400 / this.gameSpeed));
+            if (this.position.length === 144) {this.win(); return}
+            if (this.isPause) return;
             this.timeouts.push(setTimeout(() => {this.move();}, 400 / this.gameSpeed));
         }
 
         fail = () => // The snake died.
         {
             this.updateBest();
-            alert("You lose!");
+            // alert("You lose!");
+            $('#modalWin').hide();
+            $('#gameModal').modal('show');
         }
 
         win = () => // Filled the board.
         {
             clearInterval(this.running);
             this.updateBest();
-            alert("You win!");
+            // alert("You win!");
+            $('#modalLose').hide();
+            $('#gameModal').modal('show');
         }
 
         updateBest = () => // Update the best score onthe current session.
         {
-            if(parseInt($("#playerBest").html())<this.score)$("#playerBest").html(this.score);
+            if(parseInt($("#playerBest").html())<this.score)
+            {
+                $("#playerBest").html(this.score);
+                $("#modalBest").html(this.score);
+            }
         }
 
         updateGameMode = () => // Update the gamemode.
@@ -237,6 +252,7 @@ $(document).ready(function()
             mode += this.borderKill ? "K-"+this.gameSpeed : "S-"+this.gameSpeed;
             $("#playerMode").html() === mode ? null : $("#playerBest").html(0);
             $("#playerMode").html(mode);
+            $("#modalMode").html(mode);
         }
     }
 
@@ -258,7 +274,7 @@ $(document).ready(function()
         }
     });
 
-    $('#my-btn').click(function() // Start / Reset button.
+    $('#btnStartReset').click(function() // Start / Reset button.
     {
         if (isStart)
         {
@@ -272,6 +288,28 @@ $(document).ready(function()
         }
         isStart = !isStart;
     });
+
+    $('#modalReset').click(function() // Modal reset button.
+    {
+        snakeGame.reset();
+        $('#btnStartReset').text('Start');
+        isStart = !isStart;
+    })
+
+    $('#btnPause').click(function() // Pause the game.
+    {
+        snakeGame.isPause = true;
+        $('#pauseModal').modal('show');
+    })
+
+    $('#modalResume').click(function() // Resume the game.
+    {
+        $('#btnPause').removeAttr('disabled');
+        $('#btnPause').attr('disabled', 'disabled');
+        snakeGame.isPause = false;
+        snakeGame.timeouts.push(setTimeout(() => {snakeGame.move();}, 400 / Snake.gameSpeed));
+    })
+    
 
     const snakeGame = new Snake();
     setInitialOptions();
