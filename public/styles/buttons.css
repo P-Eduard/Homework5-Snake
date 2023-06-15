@@ -1,0 +1,41 @@
+.my-name-input
+{
+    background-color: transparent;
+    border: 1px solid #fff;
+    outline: none;
+    box-shadow: none;
+    display: inline-flex;
+    width: 115px;
+    color: #e2e9e2;
+    caret-color: #e2e9e2;
+}
+.my-name-input:focus
+{
+    background-color: transparent;
+    border: 1px solid #fff;
+    outline: none;
+    box-shadow: none;
+    color: #e2e9e2;
+    caret-color: #e2e9e2;
+}
+.my-name-input::placeholder
+{
+    color: #b8b8b8;
+}
+.my-name-input:disabled
+{
+    background-color: #ffffff2a;
+}
+.my-btn
+{
+    width: 80px;
+}
+.my-check-space
+{
+    margin-right: -5px;
+}
+input:disabled
+{
+    background-color: lightgray;
+    color: gray;
+  }

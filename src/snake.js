@@ -32,97 +32,55 @@ $(document).ready(function()
             else return "Anon";
         }
 
-        getBorderKill() // If the border kills or not
-        {
-            return $('#borderKillSwitch').prop('checked');
-        }
-
-        getGameSpeed() // Chosen game speed
-        {
-            return parseInt($('input[name="inlineRadioOptions"]:checked').val().slice(-1));
-        }
-
-        getButtonControl() // Check whether wasd or arrows.
-        {
-            return $('#keySwitch').prop('checked');
-        }
-
-        setArrowControl = (event) => // Set the control to arrow keys.
+        setControl = (event) => // Set the keyboard control.
         {
             switch (event.key)
             {
-                case 'ArrowUp':
+                case this.keys[0]:
                     if ((this.direction[0] !== 1 || this.direction[1] !== 0)) this.changeDirection = [-1,0];
                     break;
-                case 'ArrowDown':
+                case this.keys[1]:
                     if ((this.direction[0] !== -1 || this.direction[1] !== 0)) this.changeDirection = [1,0];
                     break;
-                case 'ArrowLeft':
+                case this.keys[2]:
                     if ((this.direction[0] !== 0 || this.direction[1] !== 1)) this.changeDirection = [0,-1];
                     break;
-                case 'ArrowRight':
+                case this.keys[3]:
                     if ((this.direction[0] !== 0 || this.direction[1] !== -1)) this.changeDirection = [0,1];
                     break;
                 case ' ':
                     pauseFunction();
-                    this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
                     break;
                 default:
                     break;
             }
         }
 
-        setWASDControl = (event) => // Set the control to wasd keys.
+        reset = () => // Restore the game to default.
         {
-            switch (event.key)
-            {
-                case 'w':
-                    if ((this.direction[0] !== 1 || this.direction[1] !== 0)) this.changeDirection = [-1,0];
-                    break;
-                case 's':
-                    if ((this.direction[0] !== -1 || this.direction[1] !== 0)) this.changeDirection = [1,0];
-                    break;
-                case 'a':
-                    if ((this.direction[0] !== 0 || this.direction[1] !== 1)) this.changeDirection = [0,-1];
-                    break;
-                case 'd':
-                    if ((this.direction[0] !== 0 || this.direction[1] !== -1)) this.changeDirection = [0,1];
-                    break;
-                case ' ':
-                    pauseFunction();
-                    this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
-                    break;
-                default:
-                    break;
-            }
-        }
-      
-        next = () => // Where head will go on next turn.
-        {
-            return [this.position[0][0]+snakeGame.changeDirection[0],snakeGame.position[0][1]+snakeGame.changeDirection[1]];
-        }
-      
-        reset() // Restore the game to default.
-        {
-            keyboardStart();
+            $(document).off('keydown');
+            this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
+            $('#inputName').removeAttr('disabled');
+            $('#btnStartReset').text('Start');
             $('#modalLose').show();
             $('#modalWin').show();
             $('#btnPause').attr('disabled', 'disabled');
             $('#playerScore').html(0);
             $('#modalScore').html(0);
-            this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = [-1,-1];
             this.score = 0;
-            this.buttonControl ? $(document).off('keydown', this.setWASDControl) : $(document).off('keydown', this.setArrowControl);
             this.updateBoard();
+            keyboardStart();
         }
       
-        start(withDir = false) // Start the game.
+        start = (withDir) => // Start the game.
         {
             this.playerName = this.getPlayerName();
             $(document).off('keydown');
             $('#btnPause').removeAttr('disabled');
+            $('#btnStartReset').text('Reset');
+            $('#inputName').attr('disabled', 'disabled');
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = this.randomPip();
             this.direction = [0,1];
@@ -135,15 +93,32 @@ $(document).ready(function()
             }
             this.changeDirection = this.direction.concat();
             this.score = 0;
-            this.borderKill = this.getBorderKill();
-            this.gameSpeed = this.getGameSpeed();
-            this.buttonControl = this.getButtonControl();
+            this.borderKill = $('#borderKillSwitch').prop('checked');
+            this.gameSpeed = parseInt($('input[name="inlineRadioOptions"]:checked').val().slice(-1));
             this.timeouts = [];
             this.isPause = false;
             $('#playerName').html(this.playerName);
-            this.buttonControl ? $(document).on('keydown', this.setWASDControl) : $(document).on('keydown', this.setArrowControl);
+            this.keys = $('#keySwitch').prop('checked') ? ['w','s','a','d'] : ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
+            $(document).on('keydown', this.setControl);
+            this.updateBoard();
             this.updateGameMode();
             this.move();
+        }
+
+        move = () => // Update the position according to the direction.
+        {
+            if(this.isPause) return;
+            var nextSpot = [this.position[0][0]+snakeGame.changeDirection[0],snakeGame.position[0][1]+snakeGame.changeDirection[1]];
+            this.direction = this.changeDirection.concat();
+            this.pastPosition = this.position.concat();
+            if(!this.borderKill) this.loop(nextSpot);
+            else if(nextSpot[0] > 11 || nextSpot[0] < 0 || nextSpot[1] > 11 || nextSpot[1] < 0) {this.fail(); return;};
+            if(this.isPositionInSnake(nextSpot, this.position)) {this.fail(); return;};
+            this.moveSnake(nextSpot);
+            this.animate();
+            this.timeouts.push(setTimeout(() => {this.updateBoard();}, 400 / this.gameSpeed));
+            if (this.position.length === 144) {this.win(); return;};
+            this.timeouts.push(setTimeout(() => {this.move();}, 400 / this.gameSpeed));
         }
       
         animate = () => // Create the animation for the snake.
@@ -223,25 +198,11 @@ $(document).ready(function()
             }
         }
 
-        move = () => // Update the position according to the direction.
-        {
-            var nextSpot = this.next();
-            this.direction = this.changeDirection.concat();
-            this.pastPosition = this.position.concat();
-            if(!this.borderKill) this.loop(nextSpot);
-            else if(nextSpot[0] > 11 || nextSpot[0] < 0 || nextSpot[1] > 11 || nextSpot[1] < 0) {this.fail(); return;}
-            if(this.isPositionInSnake(nextSpot, this.position)) {this.fail(); return;}
-            this.moveSnake(nextSpot);
-            this.animate();
-            this.timeouts.push(setTimeout(() => {this.updateBoard();}, 400 / this.gameSpeed));
-            if (this.position.length === 144) {this.win(); return}
-            if (this.isPause) return;
-            this.timeouts.push(setTimeout(() => {this.move();}, 400 / this.gameSpeed));
-        }
-
         fail = () => // The snake died.
         {
             this.updateBest();
+            $(document).off('keydown');
+            $('#btnPause').prop('disabled', 'disabled');
             $('#modalWin').hide();
             $('#gameModal').modal('show');
         }
@@ -290,19 +251,16 @@ $(document).ready(function()
         }
     });
 
-    $('#btnStartReset').click(function() // Start / Reset button.
+    $('#inputName').focus(function() // Don't start when the player clicks on the input field.
     {
-        if (isStart)
-        {
-            snakeGame.start();
-            $(this).text('Reset');
-        } 
-        else
-        {
-            snakeGame.reset();
-            $(this).text('Start');
-        }
-        isStart = !isStart;
+        $(document).off('keydown');
+    });
+      
+    $('#inputName').blur(function(event) // Allow to start after the player sets the name.
+    {
+        let clickedElement = event.relatedTarget;
+        if (clickedElement && clickedElement.id === 'btnStartReset') return;
+        keyboardStart();
     });
 
     $('#modalReset').click(function() // Modal reset button.
@@ -314,38 +272,50 @@ $(document).ready(function()
 
     $('#btnPause').click(pauseFunction)
 
-    $('#modalResume').click(function() // Resume the game.
-    {
-        $('#btnPause').removeAttr('disabled');
-        snakeGame.isPause = false;
-        snakeGame.timeouts.push(setTimeout(() => {snakeGame.move();}, 400 / Snake.gameSpeed));
-    })
+    $('#modalResume').click(resumeFunction)
 
-    function pauseFunction()
+    function pauseFunction() // Pause the game.
     {
-        snakeGame.isPause = true;
+        snakeGame.isPause = true; 
+        snakeGame.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
+        $(document).off('keydown');
         $('#pauseModal').modal('show');
     }
 
-    function keyboardStart()
+    function resumeFunction() // Resume the game.
+    {
+        $('#btnPause').removeAttr('disabled');
+        snakeGame.isPause = false;
+        $(document).on('keydown', snakeGame.setControl);
+        snakeGame.timeouts.push(setTimeout(() => {snakeGame.move();}, 400 / Snake.gameSpeed));
+    }
+
+    $('#btnStartReset').click(function() // Start / Reset button.
+    {
+        if (isStart) snakeGame.start();
+        else snakeGame.reset();
+        isStart = !isStart;
+        $(this).blur();
+    });
+
+    function keyboardStart() // Start with wasd or arrows.
     {
         $(document).on('keydown', function(event)
         {
+            $(document).off('keydown');
             if ([37, 38, 39, 40].includes(event.which)) // Arrows.
             {
-                $(document).off('keydown');
                 if($('#keySwitch').prop('checked'))$('#keySwitch').prop('checked', false);
+                snakeGame.start(event.which);
                 $('#btnStartReset').text('Reset');
                 isStart = !isStart;
-                snakeGame.start(event.which);
             }
             if ([87, 65, 83, 68].includes(event.which)) // WASD.
             {
-                $(document).off('keydown');
                 if(!$('#keySwitch').prop('checked'))$('#keySwitch').prop('checked', true);
+                snakeGame.start(event.which);
                 $('#btnStartReset').text('Reset');
                 isStart = !isStart;
-                snakeGame.start(event.which);
             }
         });
     }
