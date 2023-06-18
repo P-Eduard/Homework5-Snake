@@ -62,7 +62,7 @@ $(document).ready(function()
             deleteUserAll();
             return;
         }
-        if($('#playerBest').html() < 9)return;
+        if($('#playerBest').html() < 10)return;
         if(getIdByNameAndMode(usrName, usrMode))
         {
             if(isCurrentBetter(usrName, usrMode))deleteUserID(usrName, usrMode);
