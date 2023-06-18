@@ -7,7 +7,7 @@ import
 
 $(document).ready(function()
 {
-    const firebaseConfig =
+    const firebaseConfig = // Firebase api configuration.
     {
         apiKey: "AIzaSyAGxvhSXjtLWppZTL9_pNfiCdTd6W0MnrE",
         authDomain: "snake-project-eduard.firebaseapp.com",
@@ -21,7 +21,7 @@ $(document).ready(function()
     const db = getFirestore();
     const colRef = collection(db, 'users');
     let usersList = "Nobody just yet.";
-    function updateUsersList()
+    function updateUsersList() // Update the local scoreboard from db.
     {
         getDocs(colRef)
             .then((snapshot) =>  // Get the list from the server.
@@ -34,10 +34,6 @@ $(document).ready(function()
                 usersList = users.concat();
                 console.log(usersList);
                 updateScoreboard();
-            })
-            .then(() => 
-            {
-                $("#scoreBoardTable").fadeIn(200);
             })
             .catch(err => 
             {
@@ -66,6 +62,7 @@ $(document).ready(function()
             deleteUserAll();
             return;
         }
+        if($('#playerBest').html() < 9)return;
         if(getIdByNameAndMode(usrName, usrMode))
         {
             if(isCurrentBetter(usrName, usrMode))deleteUserID(usrName, usrMode);
@@ -80,14 +77,12 @@ $(document).ready(function()
         .then(() => 
         {
             console.log('Updated users:');
-            $("#scoreBoardTable").fadeOut(200);
             updateUsersList();
         })
     })
 
     $('#refreshMenu').on('click', function() // Refresh scoreboard.
     {
-        $("#scoreBoardTable").fadeOut(200);
         updateUsersList();
     })
 
@@ -98,25 +93,30 @@ $(document).ready(function()
 
     function updateScoreboard() // Update the scoreboard that's on page.
     {
-        sortUsersList();
-        $('#scoreBoard').html('');
-        for (let i = 0; i < 10; i++)
+        $("#scoreBoardTable").fadeOut(200);
+        setTimeout(function() 
         {
-            if(usersList[i])
+            sortUsersList();
+            $('#scoreBoard').html('');
+            for (let i = 0; i < 10; i++)
             {
-                $('#scoreBoard').append(`<tr><td>${usersList[i].name}</td><td class="text-end">${usersList[i].score}</td><td class="text-end">${usersList[i].mode}</td></tr>`)
+                if(usersList[i])
+                {
+                    $('#scoreBoard').append(`<tr><td>${usersList[i].name}</td><td class="text-end">${usersList[i].score}</td><td class="text-end">${usersList[i].mode}</td></tr>`)
+                }
+                else break;
             }
-            else break;
-        }
+        }, 200);
+        $("#scoreBoardTable").fadeIn(200);
     }
 
-    function getIdByNameAndMode(name, mode)
+    function getIdByNameAndMode(name, mode) // Return id by name and mode given.
     {
         const item = usersList.find((obj) => obj.name === name && obj.mode === mode);
         return item ? item.id : null;
     }
 
-    function isCurrentBetter(name, mode)
+    function isCurrentBetter(name, mode) // Check if the current score is better than what's online.
     {
         const current = parseInt($('#playerBest').html());
         const online = parseInt(usersList.find((obj) => obj.name === name && obj.mode === mode).score);
@@ -128,7 +128,6 @@ $(document).ready(function()
         deleteDoc(docRef)
             .then(() => 
             {
-                $("#scoreBoardTable").fadeOut(200);
                 updateUsersList();
             })
     }

@@ -2,7 +2,7 @@ $(document).ready(function()
 {
     class Snake
     {
-        constructor()
+        constructor() // Unused. Data is refreshed every time the game starts.
         {
 
         }
@@ -36,18 +36,22 @@ $(document).ready(function()
             {
                 case this.keys[0]:
                     if ((this.direction[0] !== 1 || this.direction[1] !== 0)) this.changeDirection = [-1,0];
+                    this.isPause ? resumeFunction() : null;
                     break;
                 case this.keys[1]:
                     if ((this.direction[0] !== -1 || this.direction[1] !== 0)) this.changeDirection = [1,0];
+                    this.isPause ? resumeFunction() : null;
                     break;
                 case this.keys[2]:
                     if ((this.direction[0] !== 0 || this.direction[1] !== 1)) this.changeDirection = [0,-1];
+                    this.isPause ? resumeFunction() : null;
                     break;
                 case this.keys[3]:
                     if ((this.direction[0] !== 0 || this.direction[1] !== -1)) this.changeDirection = [0,1];
+                    this.isPause ? resumeFunction() : null;
                     break;
                 case ' ':
-                    pauseFunction();
+                    this.isPause ? resumeFunction() : pauseFunction();
                     break;
                 default:
                     break;
@@ -58,7 +62,7 @@ $(document).ready(function()
         {
             $(document).off('keydown');
             this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
-            $('#inputName').removeAttr('disabled');
+            $('#inputName, #submitMenu').removeAttr('disabled');
             $('#btnStartReset').text('Start');
             $('#modalLose').show();
             $('#modalWin').show();
@@ -78,7 +82,7 @@ $(document).ready(function()
             $(document).off('keydown');
             $('#btnPause').removeAttr('disabled');
             $('#btnStartReset').text('Reset');
-            $('#inputName').attr('disabled', 'disabled');
+            $('#inputName, #submitMenu').attr('disabled', 'disabled');
             $('#modalName').attr('placeholder', this.playerName);
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = this.randomPip();
@@ -107,6 +111,7 @@ $(document).ready(function()
         move = () => // Update the position according to the direction.
         {
             if(this.isPause) return;
+            $('#pauseModal, #gameModal').modal('hide');
             let nextSpot = [this.position[0][0]+snakeGame.changeDirection[0],snakeGame.position[0][1]+snakeGame.changeDirection[1]];
             this.direction = this.changeDirection.concat();
             this.pastPosition = this.position.concat();
@@ -201,6 +206,7 @@ $(document).ready(function()
         {
             this.updateBest();
             $(document).off('keydown');
+            $('#inputName, #submitMenu').removeAttr('disabled');
             $('#btnPause').prop('disabled', 'disabled');
             $('#modalWin').hide();
             $('#gameModal').modal('show');
@@ -208,6 +214,7 @@ $(document).ready(function()
 
         win = () => // Filled the board.
         {
+            $('#inputName, #submitMenu').removeAttr('disabled');
             this.updateBest();
             $('#modalLose').hide();
             $('#gameModal').modal('show');
@@ -248,6 +255,21 @@ $(document).ready(function()
 
     screenTooSmall(); // Hide on load if the window is too small.
 
+    $('#gameModal').on('show.bs.modal', function() 
+    {
+        $(document).on('keydown', function(event)
+        {
+            if (event.keyCode === 32) 
+            {
+                $('#gameModal').modal('hide');
+                $(document).off('keydown');
+                snakeGame.reset();
+                $('#btnStartReset').text('Start');
+                isStart = !isStart;
+            }
+        });
+    });
+
     $(window).on('resize', screenTooSmall); // Check if the window is too small when resizing.
 
     $('#inputName').focus(function() // Don't start when the player clicks on the input field.
@@ -275,26 +297,28 @@ $(document).ready(function()
 
     function pauseFunction() // Pause the game.
     {
-        snakeGame.isPause = true; 
-        snakeGame.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
-        $(document).off('keydown');
+        snakeGame.isPause = true;
         $('#pauseModal').modal('show');
     }
 
     function resumeFunction() // Resume the game.
     {
+        snakeGame.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
         $('#btnPause').removeAttr('disabled');
-        snakeGame.isPause = false;
+        $('#pauseModal').modal('hide');
+        $(document).off('keydown');
         $(document).on('keydown', snakeGame.setControl);
-        snakeGame.timeouts.push(setTimeout(() => {snakeGame.move();}, 400 / Snake.gameSpeed));
+        snakeGame.isPause = false;
+        snakeGame.move();
     }
 
     $('#btnStartReset').click(function() // Start / Reset button.
     {
         isStart ? snakeGame.start() : snakeGame.reset();
         isStart = !isStart;
-        $(this).blur();
     });
+
+    $('.my-btn').click(function() {$(this).blur();}) // Don't bind spacebar to any button when clicked.
 
     function keyboardStart() // Start with wasd or arrows.
     {
