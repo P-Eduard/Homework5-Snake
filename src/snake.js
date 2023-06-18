@@ -1,7 +1,5 @@
 $(document).ready(function()
 {
-    var isStart = true;
-
     class Snake
     {
         constructor()
@@ -11,7 +9,7 @@ $(document).ready(function()
 
         isPositionInSnake(position, snakePosition) // Check if the given position is on the snake.
         {
-            for (var i = 0; i < snakePosition.length; i++)
+            for (let i = 0; i < snakePosition.length; i++)
                 if (position[0] === snakePosition[i][0] && position[1] === snakePosition[i][1]) 
                     return true;
             return false;
@@ -19,7 +17,7 @@ $(document).ready(function()
 
         randomPip = () => // A new pip for the board.
         {
-            var pipSpot;
+            let pipSpot;
             do pipSpot = [Math.floor(Math.random() * 12), Math.floor(Math.random() * 12)];
             while (this.isPositionInSnake(pipSpot, this.position));
             return pipSpot;
@@ -27,7 +25,7 @@ $(document).ready(function()
 
         getPlayerName() // Inputed player name
         {
-            var pName = $('#inputName').val();
+            let pName = $('#inputName').val();
             if(pName) return pName;
             else return "Anon";
         }
@@ -81,6 +79,7 @@ $(document).ready(function()
             $('#btnPause').removeAttr('disabled');
             $('#btnStartReset').text('Reset');
             $('#inputName').attr('disabled', 'disabled');
+            $('#modalName').attr('placeholder', this.playerName);
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = this.randomPip();
             this.direction = [0,1];
@@ -108,7 +107,7 @@ $(document).ready(function()
         move = () => // Update the position according to the direction.
         {
             if(this.isPause) return;
-            var nextSpot = [this.position[0][0]+snakeGame.changeDirection[0],snakeGame.position[0][1]+snakeGame.changeDirection[1]];
+            let nextSpot = [this.position[0][0]+snakeGame.changeDirection[0],snakeGame.position[0][1]+snakeGame.changeDirection[1]];
             this.direction = this.changeDirection.concat();
             this.pastPosition = this.position.concat();
             if(!this.borderKill) this.loop(nextSpot);
@@ -225,7 +224,7 @@ $(document).ready(function()
 
         updateGameMode = () => // Update the gamemode.
         {
-            var mode = "";
+            let mode = "";
             mode += this.borderKill ? "K-"+this.gameSpeed : "S-"+this.gameSpeed;
             $("#playerMode").html() === mode ? null : $("#playerBest").html(0);
             $("#playerMode").html(mode);
@@ -233,23 +232,23 @@ $(document).ready(function()
         }
     }
 
-    function setInitialOptions() // Default settings.
+    let isStart = true;
+    const snakeGame = new Snake();
+
+    (function() // IIFE for default settings.
     {
         $('#borderKillSwitch').prop('checked', true);
         $('#inlineRadio2').prop('checked', true);
+    })();
+
+    function screenTooSmall() // Hide board if the window is too small.
+    {
+        $(window).width() < 1530 ? $('#my-game-grid, #gameWindow').hide() : $('#my-game-grid, #gameWindow').show();
     }
 
-    $(window).on('resize', function() // Hide the grid if the window is too small.
-    {
-        if ($(window).width() < 1530)
-        {
-            $('.my-game-grid').hide();
-        }
-        else
-        {
-            $('.my-game-grid').show();
-        }
-    });
+    screenTooSmall(); // Hide on load if the window is too small.
+
+    $(window).on('resize', screenTooSmall); // Check if the window is too small when resizing.
 
     $('#inputName').focus(function() // Don't start when the player clicks on the input field.
     {
@@ -270,9 +269,9 @@ $(document).ready(function()
         isStart = !isStart;
     })
 
-    $('#btnPause').click(pauseFunction)
+    $('#btnPause').click(pauseFunction) // Pause button.
 
-    $('#modalResume').click(resumeFunction)
+    $('#modalResume').click(resumeFunction) // Resume buton.
 
     function pauseFunction() // Pause the game.
     {
@@ -292,8 +291,7 @@ $(document).ready(function()
 
     $('#btnStartReset').click(function() // Start / Reset button.
     {
-        if (isStart) snakeGame.start();
-        else snakeGame.reset();
+        isStart ? snakeGame.start() : snakeGame.reset();
         isStart = !isStart;
         $(this).blur();
     });
@@ -302,9 +300,9 @@ $(document).ready(function()
     {
         $(document).on('keydown', function(event)
         {
-            $(document).off('keydown');
             if ([37, 38, 39, 40].includes(event.which)) // Arrows.
             {
+                $(document).off('keydown');
                 if($('#keySwitch').prop('checked'))$('#keySwitch').prop('checked', false);
                 snakeGame.start(event.which);
                 $('#btnStartReset').text('Reset');
@@ -312,6 +310,7 @@ $(document).ready(function()
             }
             if ([87, 65, 83, 68].includes(event.which)) // WASD.
             {
+                $(document).off('keydown');
                 if(!$('#keySwitch').prop('checked'))$('#keySwitch').prop('checked', true);
                 snakeGame.start(event.which);
                 $('#btnStartReset').text('Reset');
@@ -320,7 +319,5 @@ $(document).ready(function()
         });
     }
     
-    const snakeGame = new Snake();
-    setInitialOptions();
     keyboardStart();
 });
