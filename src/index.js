@@ -1,8 +1,8 @@
 import { initializeApp } from 'firebase/app'
 import 
 { 
-    getFirestore, collection, getDocs,
-    addDoc, deleteDoc, doc
+    getFirestore, collection, getDocs, onSnapshot,
+    addDoc, deleteDoc, doc, updateDoc
 } from 'firebase/firestore'
 
 $(document).ready(function()
@@ -18,80 +18,39 @@ $(document).ready(function()
     };
 
     initializeApp(firebaseConfig);
-    const db = getFirestore();
-    const colRef = collection(db, 'users');
-    let usersList = "Nobody just yet.";
-    function updateUsersList() // Update the local scoreboard from db.
+    const db = getFirestore(), colRef = collection(db, 'users');
+    let usersList = "Nobody just yet.", filteredList = "Empty.", modeFilter = "", speedFilter = "", boardfilter = "-";
+
+    onSnapshot(colRef, (snapshot) => // Automatically update the local list when it changes on the server.
     {
-        getDocs(colRef)
-            .then((snapshot) =>  // Get the list from the server.
-            {
-                let users = [];
-                snapshot.docs.forEach((doc) => 
-                {
-                    users.push({...doc.data(), id: doc.id});
-                })
-                usersList = users.concat();
-                console.log(usersList);
-                updateScoreboard();
-            })
-            .catch(err => 
-            {
-                console.log(err.message);
-            });
+        updateUsersList(snapshot);
+    })
+
+    function updateUsersList(snapshot) // Update the local list.
+    {
+        let users = [];
+        snapshot.docs.forEach((doc) => 
+        {
+            users.push({...doc.data(), id: doc.id});
+        })
+        usersList = users.concat();
+        console.log(usersList);
+        filterUserList();
+        updateScoreboard(filteredList);
     }
-
-    console.log("Initial users:");
-    updateUsersList();
-
-    $('#submitModal, #submitMenu').on('click', function(e) // Add best score of current player to the db.
-    {
-        e.preventDefault();
-        $('#gameModal').modal('hide');
-        let usrName = $('#playerName').html();
-        let usrMode = $('#playerMode').html();
-        let updatedName = $('#modalName').val();
-        if(updatedName)
-        {
-            usrName = updatedName;
-            $('#playerName').html(updatedName);
-            $('#inputName').val(updatedName);
-        } 
-        if(usrName === 'AdminDeleteAllCommand')
-        {
-            deleteUserAll();
-            return;
-        }
-        if($('#playerBest').html() < 10)return;
-        if(getIdByNameAndMode(usrName, usrMode))
-        {
-            if(isCurrentBetter(usrName, usrMode))deleteUserID(usrName, usrMode);
-            else return;
-        }
-        addDoc(colRef, 
-        {
-            name: $('#playerName').html(),
-            score: $('#playerBest').html(),
-            mode: $('#playerMode').html(),
-        })
-        .then(() => 
-        {
-            console.log('Updated users:');
-            updateUsersList();
-        })
-    })
-
-    $('#refreshMenu').on('click', function() // Refresh scoreboard.
-    {
-        updateUsersList();
-    })
 
     function sortUsersList() // Sort the users by the score.
     {
         usersList.sort((a, b) => b.score - a.score);
     }
 
-    function updateScoreboard() // Update the scoreboard that's on page.
+    function filterUserList() // Filter the list by active filters.
+    {
+        filteredList = [];
+        usersList.forEach((user) => {if(user.mode.includes(boardfilter))filteredList.push(user);})
+    }
+
+    function updateScoreboard(list = usersList) // Update the scoreboard that's on page.
     {
         $("#scoreBoardTable").fadeOut(200);
         setTimeout(function() 
@@ -100,9 +59,9 @@ $(document).ready(function()
             $('#scoreBoard').html('');
             for (let i = 0; i < 10; i++)
             {
-                if(usersList[i])
+                if(list[i])
                 {
-                    $('#scoreBoard').append(`<tr><td>${usersList[i].name}</td><td class="text-end">${usersList[i].score}</td><td class="text-end">${usersList[i].mode}</td></tr>`)
+                    $('#scoreBoard').append(`<tr><td>${list[i].name}</td><td class="text-end">${list[i].score}</td><td class="text-end">${list[i].mode}</td></tr>`)
                 }
                 else break;
             }
@@ -110,7 +69,7 @@ $(document).ready(function()
         $("#scoreBoardTable").fadeIn(200);
     }
 
-    function getIdByNameAndMode(name, mode) // Return id by name and mode given.
+    function getID(name, mode) // Return id by name and mode given.
     {
         const item = usersList.find((obj) => obj.name === name && obj.mode === mode);
         return item ? item.id : null;
@@ -123,20 +82,10 @@ $(document).ready(function()
         return current > online;
     }
 
-    function deleteDocument(docRef) // Call firebase function to delete the doc.
-    {
-        deleteDoc(docRef)
-            .then(() => 
-            {
-                updateUsersList();
-            })
-    }
-
     function deleteUserID(userName, userMode) // Delete an user with a given name and mode.
     {
-        let UID = getIdByNameAndMode(userName, userMode), docRef = doc(db, 'users', UID);
-        console.log("Deleted user ", userName);
-        deleteDocument(docRef);
+        let UID = getID(userName, userMode), docRef = doc(db, 'users', UID);
+        deleteDoc(docRef);
     }
 
     function deleteUserAll() // Delete all users.
@@ -144,7 +93,73 @@ $(document).ready(function()
         usersList.forEach((user) => 
         {
             const docRef = doc(db, 'users', user.id);
-            deleteDocument(docRef);
+            deleteDoc(docRef);
         });
     }
+
+    $(document).on('click', '.mode-pill', function() // Update the mode filter when you click a pill.
+    {
+        modeFilter = $(this).text() === 'None' ? "" : $(this).text();
+        boardfilter = modeFilter+"-"+speedFilter;
+        filterUserList();
+        updateScoreboard(filteredList);
+        console.log(boardfilter);
+    });
+
+    $(document).on('click', '.speed-pill', function() // Update the speed filter when you click a pill.
+    {
+        speedFilter = $(this).text() === 'None' ? "" : $(this).text();
+        boardfilter = modeFilter+"-"+speedFilter;
+        filterUserList();
+        updateScoreboard(filteredList);
+        console.log(boardfilter);
+    });
+
+    $('#submitModal, #submitMenu').on('click', function(e) // Add or update best score to the db.
+    {
+        e.preventDefault();
+        $('#gameModal').modal('hide');
+        let userName = $('#playerName').html(), userMode = $('#playerMode').html(), updatedName = $('#modalName').val();
+        if(updatedName)
+        {
+            userName = updatedName;
+            $('#playerName').html(updatedName);
+            $('#inputName').val(updatedName);
+        } 
+        if(userName === 'AdminDeleteAllCommand')
+        {
+            deleteUserAll();
+            return;
+        }
+        if($('#playerBest').html() < 10)return;
+        if(getID(userName, userMode))
+        {
+            if(isCurrentBetter(userName, userMode))
+            {
+                let UID = getID(userName, userMode), docRef = doc(db, 'users', UID);
+                updateDoc(docRef, {score: $('#playerBest').html()});
+            }
+        }
+        else addDoc(colRef, 
+        {
+            name: userName,
+            score: $('#playerBest').html(),
+            mode: userMode,
+        })
+    })
+
+    $('#refreshMenu').on('click', function() // Manually refresh scoreboard.
+    {
+        getDocs(colRef)
+            .then((snapshot) =>
+            {
+                updateUsersList(snapshot);
+            })
+            .catch(err => 
+            {
+                console.log(err.message);
+            });
+        
+    })
+
 });

@@ -38,4 +38,21 @@ input:disabled
 {
     background-color: lightgray;
     color: gray;
-  }
+}
+.nav-link 
+{
+    width: 50px;
+    height: 22px;
+    padding: 0px;
+    color: #e2e9e2;
+}
+.nav-link:hover
+{
+    color: #e2e9e2;
+    background-color: #b8b8b885;
+    cursor: pointer;
+}
+.nav-item .nav-link.active
+{
+    background-color: #b8b8b8c2;
+}

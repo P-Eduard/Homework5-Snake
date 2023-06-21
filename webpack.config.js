@@ -15,3 +15,4 @@ module.exports =
     },
     watch: true
 }
+// npm run build

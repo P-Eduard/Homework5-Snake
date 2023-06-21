@@ -64,11 +64,8 @@ $(document).ready(function()
             this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
             $('#inputName, #submitMenu').removeAttr('disabled');
             $('#btnStartReset').text('Start');
-            $('#modalLose').show();
-            $('#modalWin').show();
             $('#btnPause').attr('disabled', 'disabled');
             $('#playerScore').html(0);
-            $('#modalScore').html(0);
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = [-1,-1];
             this.score = 0;
@@ -208,6 +205,7 @@ $(document).ready(function()
             $(document).off('keydown');
             $('#inputName, #submitMenu').removeAttr('disabled');
             $('#btnPause').prop('disabled', 'disabled');
+            $('#modalLose').show();
             $('#modalWin').hide();
             $('#gameModal').modal('show');
         }
@@ -216,6 +214,7 @@ $(document).ready(function()
         {
             $('#inputName, #submitMenu').removeAttr('disabled');
             this.updateBest();
+            $('#modalWin').show();
             $('#modalLose').hide();
             $('#gameModal').modal('show');
         }
@@ -257,17 +256,20 @@ $(document).ready(function()
 
     $('#gameModal').on('show.bs.modal', function() 
     {
-        $(document).on('keydown', function(event)
+        setTimeout(() =>
         {
-            if (event.keyCode === 32) 
+            $(document).on('keydown', function(event)
             {
-                $('#gameModal').modal('hide');
-                $(document).off('keydown');
-                snakeGame.reset();
-                $('#btnStartReset').text('Start');
-                isStart = !isStart;
-            }
-        });
+                if (event.keyCode === 32) 
+                {
+                    $('#gameModal').modal('hide');
+                    $(document).off('keydown');
+                    snakeGame.reset();
+                    $('#btnStartReset').text('Start');
+                    isStart = !isStart;
+                }
+            });
+        }, 500)
     });
 
     $(window).on('resize', screenTooSmall); // Check if the window is too small when resizing.
