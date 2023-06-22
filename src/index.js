@@ -4,6 +4,11 @@ import
     getFirestore, collection, getDocs, onSnapshot,
     addDoc, deleteDoc, doc, updateDoc
 } from 'firebase/firestore'
+import './styles/buttons.css'
+import './styles/grid.css'
+import './styles/page.css'
+import './styles/snake.css'
+// import snakeIcon from './Images/snakeIcon.png.png'
 
 $(document).ready(function()
 {
@@ -42,6 +47,7 @@ $(document).ready(function()
     function sortUsersList() // Sort the users by the score.
     {
         usersList.sort((a, b) => b.score - a.score);
+        filteredList.sort((a, b) => b.score - a.score);
     }
 
     function filterUserList() // Filter the list by active filters.
@@ -161,5 +167,4 @@ $(document).ready(function()
             });
         
     })
-
 });
