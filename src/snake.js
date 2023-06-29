@@ -62,7 +62,7 @@ $(document).ready(function()
         {
             $(document).off('keydown');
             this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
-            $('#inputName, #submitMenu').removeAttr('disabled');
+            $('#inputName, #submitMenu, #infoModalButton').removeAttr('disabled');
             $('#btnStartReset').text('Start');
             $('#btnPause').attr('disabled', 'disabled');
             $('#playerScore').html(0);
@@ -79,7 +79,7 @@ $(document).ready(function()
             $(document).off('keydown');
             $('#btnPause').removeAttr('disabled');
             $('#btnStartReset').text('Reset');
-            $('#inputName, #submitMenu').attr('disabled', 'disabled');
+            $('#inputName, #submitMenu, #infoModalButton').attr('disabled', 'disabled');
             $('#modalName').attr('placeholder', this.playerName);
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = this.randomPip();
@@ -273,6 +273,17 @@ $(document).ready(function()
     });
 
     $(window).on('resize', screenTooSmall); // Check if the window is too small when resizing.
+
+    $('#infoModalButton').on('click', function() // Info button modal.
+    {
+        $(document).off('keydown');
+        $('#infoModal').modal('show')
+    })
+
+    $('#infoModal').on('hidden.bs.modal', function (e) // Start with keyboard when you close info modal.
+    {
+        keyboardStart();
+    });
 
     $('#inputName').focus(function() // Don't start when the player clicks on the input field.
     {
