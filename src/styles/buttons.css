@@ -56,3 +56,10 @@ input:disabled
 {
     background-color: #b8b8b8c2;
 }
+.my-popover
+{
+    --bs-popover-header-bg: #333533;
+    --bs-popover-bg: #2d2f2d;
+    --bs-popover-header-color: #e2e9e2;
+    --bs-popover-body-color: #e2e9e2;
+}

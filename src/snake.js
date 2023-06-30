@@ -61,6 +61,7 @@ $(document).ready(function()
         reset = () => // Restore the game to default.
         {
             $(document).off('keydown');
+            
             this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
             $('#inputName, #submitMenu, #infoModalButton').removeAttr('disabled');
             $('#btnStartReset').text('Start');
@@ -71,7 +72,7 @@ $(document).ready(function()
             this.score = 0;
             this.updateBoard();
             keyboardStart();
-        }
+                    }
       
         start = (withDir) => // Start the game.
         {
@@ -81,6 +82,7 @@ $(document).ready(function()
             $('#btnStartReset').text('Reset');
             $('#inputName, #submitMenu, #infoModalButton').attr('disabled', 'disabled');
             $('#modalName').attr('placeholder', this.playerName);
+            $("#modalName").val("");
             this.position = [[4,4], [4,3], [4,2], [4,1]];
             this.pip = this.randomPip();
             this.direction = [0,1];
@@ -308,6 +310,35 @@ $(document).ready(function()
 
     $('#modalResume').click(resumeFunction) // Resume buton.
 
+    $('#inputName, #modalName').on('change input', function() // Verify that the name is good with every letter.
+    {
+        nameCheck($(this).val()) ? nameGood() : nameBad();
+    });
+
+    $('#yourInputId').popover({trigger: 'manual'});
+
+    function nameCheck(inputName) // Check the name. Redundant but better readability.
+    {
+        if(inputName === "") return true;
+        return /^[a-zA-Z0-9]+$/.test(inputName) && inputName.length <10;
+    }
+    
+    function nameGood() // Allow the name.
+    {
+        console.log("Name good.");
+        $("#modalName, #inputName").popover('hide');
+        $('#submitModal, #btnStartReset').removeAttr('disabled');
+        // $('#modalName, #inputName').attr('trigger', 'manual');
+    }
+
+    function nameBad() // Don't allow the name.
+    {
+        console.log("Name bad.");
+        if(!$('#my-popover').is('*')) $("#gameModal").hasClass("show") ? $("#modalName").popover('show') : $("#inputName").popover('show');
+        $('#submitModal, #btnStartReset').attr('disabled', 'disabled');
+        // $('#modalName, #inputName').attr('trigger', 'manual');
+    }
+
     function pauseFunction() // Pause the game.
     {
         snakeGame.isPause = true;
@@ -340,6 +371,7 @@ $(document).ready(function()
             if ([37, 38, 39, 40].includes(event.which)) // Arrows.
             {
                 $(document).off('keydown');
+                
                 if($('#keySwitch').prop('checked'))$('#keySwitch').prop('checked', false);
                 snakeGame.start(event.which);
                 $('#btnStartReset').text('Reset');
@@ -348,6 +380,7 @@ $(document).ready(function()
             if ([87, 65, 83, 68].includes(event.which)) // WASD.
             {
                 $(document).off('keydown');
+                
                 if(!$('#keySwitch').prop('checked'))$('#keySwitch').prop('checked', true);
                 snakeGame.start(event.which);
                 $('#btnStartReset').text('Reset');

@@ -1,428 +1,429 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-      <title><%= htmlWebpackPlugin.options.title %></title>
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-      <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
-    </head>
-    <body>
-      <div class="modal fade" tabindex="-1" id="infoModal">
-        <div class="modal-dialog">
-          <div class="my-background modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Game Info</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close""></button>
+  <head>
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="modal fade" tabindex="-1" id="infoModal">
+      <div class="modal-dialog">
+        <div class="my-background modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Game Info</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close""></button>
+          </div>
+          <div class="modal-body">
+            <ul class="list-group list-group-flush">
+              <li class="my-background list-group-item">Start without selecting between WASD and arrows. When the game is ready to go, just press a button and it will select automatically!</li>
+              <li class="my-background list-group-item">Pause the game at any time with spacebar. And unpause with WASD or arrow, depending on which you have chosen.</li>
+              <li class="my-background list-group-item">Reset the game when it ends with spacebar. This will keep your best score and you submit it later if you want.</li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="my-btn btn btn-light" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" tabindex="-1" id="gameModal">
+      <div class="modal-dialog">
+        <div class="my-background modal-content">
+          <div class="modal-header">
+            <h5 id="modalWin" class="modal-title">You win!</h5>
+            <h5 id="modalLose" class="modal-title">You lose!</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close""></button>
+          </div>
+          <div class="modal-body">
+            <div>Score:&nbsp<span id="modalScore">0</span></div>
+            <div>Best:&nbsp<span id="modalBest">0</span></div>
+            <div>Game mode:&nbsp<span id="modalMode">K-2</span></div>
+          </div>
+          <div class="modal-footer d-flex flex-row justify-content-between">
+            <input type="text" id="modalName" class="my-name-input form-control rounded-start" placeholder="" autocomplete="off" data-bs-custom-class="my-popover" data-bs-toggle="popover" data-bs-placement="bottom" trigger="manual" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."/>
+            <div>
+              <button type="button" class="my-btn btn btn-light" id="submitModal">Submit</button>
+              <button type="button" class="my-btn btn btn-light" data-bs-dismiss="modal" id="modalReset">Reset</button>
             </div>
-            <div class="modal-body">
-              <ul class="list-group list-group-flush">
-                <li class="my-background list-group-item">- Start without selecting between WASD and arrows. When the game is ready to go, just press a button and it will select automatically!</li>
-                <li class="my-background list-group-item">- Pause the game at any time with spacebar. And unpause with WASD or arrow, depending on which you have chosen.</li>
-                <li class="my-background list-group-item">- Reset the game when it ends with spacebar. This will keep your best score and you submit it later if you want.</li>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="pauseModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="my-background modal-content">
+          <div class="modal-header" style="border-bottom: none;">
+            <h5 class="modal-title">Game paused...</h5>
+            <button type="button" class="my-btn btn btn-light" data-bs-dismiss="modal" id="modalResume">Resume</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="my-menu row border rounded d-flex justify-content-center align-items-center">
+        <div class="my-title my-menu-item col-sm-auto">Snake</div>
+        <div class="my-menu-item col-sm-auto">
+          <input type="text" id="inputName" class="my-name-input form-control rounded-start" placeholder="Your Name" autocomplete="off" data-bs-custom-class="my-popover" data-bs-toggle="popover" data-bs-placement="bottom" trigger="manual" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."/>
+          <button type="button" class="my-btn btn btn-light" id="btnStartReset">Start</button>
+          <button type="button" class="my-btn btn btn-light" id="btnPause" disabled>Pause</button>
+        </div>
+        <div class="my-menu-item col-sm-auto">
+          <button type="button" class="my-btn btn btn-light mb-2" id="infoModalButton">Info</button>
+        </div>
+      </div>
+      <div class="my-main row justify-content-between">
+        <div id="myStats" class="my-stats col-sm-3 d-flex flex-column justify-content-between align-items-center border rounded">
+          <div class="w-100">
+            <div class="d-flex justify-content-center">
+              Stats
+            </div>
+            <div id="statsBox" class="d-flex flex-column align-content-start">
+              <div class="my-player-name d-flex flex-row">
+                <div>Name:&nbsp</div>
+                <div id="playerName">Anon</div>
+              </div>
+              <div class="my-player-score d-flex flex-row">
+                <div>Score:&nbsp</div>
+                <div id="playerScore">0</div>
+              </div>
+              <div class="my-player-best d-flex flex-row">
+                <div>Best:&nbsp</div>
+                <div id="playerBest">0</div>
+              </div>
+              <div class="my-player-gamemode d-flex flex-row">
+                <div>Game mode:&nbsp</div>
+                <div id="playerMode">K-2</div>
+              </div>
+            </div>
+          </div>
+          <div class="my-options">
+            <div class="d-flex flex-row justify-content-center">
+            </div>
+            <div class="my-options-item d-flex justify-content-center">
+              Options
+            </div>
+            <div class="my-options-item form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="borderKillSwitch">
+              <label class="form-check-label" for="borderKillSwitch">Outer Border Kills</label>
+            </div>
+            <div class="btn-group-toggle" data-bs-toggle="buttons">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                <label class="my-check-space form-check-label" for="inlineRadio1">1</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                <label class="my-check-space form-check-label" for="inlineRadio2">2</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3">
+                <label class="my-check-space form-check-label" for="inlineRadio3">3</label>
+              </div>
+              Speed
+            </div>
+            <div class="my-options-item d-flex justify-content-between">
+              Arrows
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="keySwitch">
+              </div>
+              WASD
+            </div>
+          </div>
+        </div>
+        <div id="myGame" class="my-game col-sm-6 d-flex justify-content-center align-items-center">
+          <div class="my-game-grid" id="my-game-grid" style="display: none;">
+              <div class="my-position border 0-0"></div>
+              <div class="my-position border 0-1"></div>
+              <div class="my-position border 0-2"></div>
+              <div class="my-position border 0-3"></div>
+              <div class="my-position border 0-4"></div>
+              <div class="my-position border 0-5"></div>
+              <div class="my-position border 0-6"></div>
+              <div class="my-position border 0-7"></div>
+              <div class="my-position border 0-8"></div>
+              <div class="my-position border 0-9"></div>
+              <div class="my-position border 0-10"></div>
+              <div class="my-position border 0-11"></div>
+
+              <div class="my-position border 1-0"></div>
+              <div class="my-position border 1-1"></div>
+              <div class="my-position border 1-2"></div>
+              <div class="my-position border 1-3"></div>
+              <div class="my-position border 1-4"></div>
+              <div class="my-position border 1-5"></div>
+              <div class="my-position border 1-6"></div>
+              <div class="my-position border 1-7"></div>
+              <div class="my-position border 1-8"></div>
+              <div class="my-position border 1-9"></div>
+              <div class="my-position border 1-10"></div>
+              <div class="my-position border 1-11"></div>
+
+              <div class="my-position border 2-0"></div>
+              <div class="my-position border 2-1"></div>
+              <div class="my-position border 2-2"></div>
+              <div class="my-position border 2-3"></div>
+              <div class="my-position border 2-4"></div>
+              <div class="my-position border 2-5"></div>
+              <div class="my-position border 2-6"></div>
+              <div class="my-position border 2-7"></div>
+              <div class="my-position border 2-8"></div>
+              <div class="my-position border 2-9"></div>
+              <div class="my-position border 2-10"></div>
+              <div class="my-position border 2-11"></div>
+
+              <div class="my-position border 3-0"></div>
+              <div class="my-position border 3-1"></div>
+              <div class="my-position border 3-2"></div>
+              <div class="my-position border 3-3"></div>
+              <div class="my-position border 3-4"></div>
+              <div class="my-position border 3-5"></div>
+              <div class="my-position border 3-6"></div>
+              <div class="my-position border 3-7"></div>
+              <div class="my-position border 3-8"></div>
+              <div class="my-position border 3-9"></div>
+              <div class="my-position border 3-10"></div>
+              <div class="my-position border 3-11"></div>
+
+              <div class="my-position border 4-0"></div>
+              <div class="my-position border 4-1">
+                <div class="w-100 h-100 position-relative my-little-dot"></div>
+              </div>
+              <div class="my-position border 4-2">
+                <div class="w-100 h-100 position-relative my-full-dot"></div>
+              </div>
+              <div class="my-position border 4-3">
+                <div class="w-100 h-100 position-relative my-full-dot"></div>
+              </div>
+              <div class="my-position border 4-4">
+                <div class="w-100 h-100 position-relative my-empty-dot"></div>
+              </div>
+              <div class="my-position border 4-5"></div>
+              <div class="my-position border 4-6"></div>
+              <div class="my-position border 4-7"></div>
+              <div class="my-position border 4-8"></div>
+              <div class="my-position border 4-9"></div>
+              <div class="my-position border 4-10"></div>
+              <div class="my-position border 4-11"></div>
+
+              <div class="my-position border 5-0"></div>
+              <div class="my-position border 5-1"></div>
+              <div class="my-position border 5-2"></div>
+              <div class="my-position border 5-3"></div>
+              <div class="my-position border 5-4"></div>
+              <div class="my-position border 5-5"></div>
+              <div class="my-position border 5-6"></div>
+              <div class="my-position border 5-7"></div>
+              <div class="my-position border 5-8"></div>
+              <div class="my-position border 5-9"></div>
+              <div class="my-position border 5-10"></div>
+              <div class="my-position border 5-11"></div>
+
+              <div class="my-position border 6-0"></div>
+              <div class="my-position border 6-1"></div>
+              <div class="my-position border 6-2"></div>
+              <div class="my-position border 6-3"></div>
+              <div class="my-position border 6-4"></div>
+              <div class="my-position border 6-5"></div>
+              <div class="my-position border 6-6"></div>
+              <div class="my-position border 6-7"></div>
+              <div class="my-position border 6-8"></div>
+              <div class="my-position border 6-9"></div>
+              <div class="my-position border 6-10"></div>
+              <div class="my-position border 6-11"></div>
+
+              <div class="my-position border 7-0"></div>
+              <div class="my-position border 7-1"></div>
+              <div class="my-position border 7-2"></div>
+              <div class="my-position border 7-3"></div>
+              <div class="my-position border 7-4"></div>
+              <div class="my-position border 7-5"></div>
+              <div class="my-position border 7-6"></div>
+              <div class="my-position border 7-7"></div>
+              <div class="my-position border 7-8"></div>
+              <div class="my-position border 7-9"></div>
+              <div class="my-position border 7-10"></div>
+              <div class="my-position border 7-11"></div>
+
+              <div class="my-position border 8-0"></div>
+              <div class="my-position border 8-1"></div>
+              <div class="my-position border 8-2"></div>
+              <div class="my-position border 8-3"></div>
+              <div class="my-position border 8-4"></div>
+              <div class="my-position border 8-5"></div>
+              <div class="my-position border 8-6"></div>
+              <div class="my-position border 8-7"></div>
+              <div class="my-position border 8-8"></div>
+              <div class="my-position border 8-9"></div>
+              <div class="my-position border 8-10"></div>
+              <div class="my-position border 8-11"></div>
+
+              <div class="my-position border 9-0"></div>
+              <div class="my-position border 9-1"></div>
+              <div class="my-position border 9-2"></div>
+              <div class="my-position border 9-3"></div>
+              <div class="my-position border 9-4"></div>
+              <div class="my-position border 9-5"></div>
+              <div class="my-position border 9-6"></div>
+              <div class="my-position border 9-7"></div>
+              <div class="my-position border 9-8"></div>
+              <div class="my-position border 9-9"></div>
+              <div class="my-position border 9-10"></div>
+              <div class="my-position border 9-11"></div>
+
+              <div class="my-position border 10-0"></div>
+              <div class="my-position border 10-1"></div>
+              <div class="my-position border 10-2"></div>
+              <div class="my-position border 10-3"></div>
+              <div class="my-position border 10-4"></div>
+              <div class="my-position border 10-5"></div>
+              <div class="my-position border 10-6"></div>
+              <div class="my-position border 10-7"></div>
+              <div class="my-position border 10-8"></div>
+              <div class="my-position border 10-9"></div>
+              <div class="my-position border 10-10"></div>
+              <div class="my-position border 10-11"></div>
+
+              <div class="my-position border 11-0"></div>
+              <div class="my-position border 11-1"></div>
+              <div class="my-position border 11-2"></div>
+              <div class="my-position border 11-3"></div>
+              <div class="my-position border 11-4"></div>
+              <div class="my-position border 11-5"></div>
+              <div class="my-position border 11-6"></div>
+              <div class="my-position border 11-7"></div>
+              <div class="my-position border 11-8"></div>
+              <div class="my-position border 11-9"></div>
+              <div class="my-position border 11-10"></div>
+              <div class="my-position border 11-11"></div>
+          </div>
+        </div>
+        <div id="myScore" class="my-score col-sm-3 d-flex flex-column justify-content-between align-items-center border rounded">
+          <div class="d-flex flex-column align-items-center w-100">
+            Scoreboard
+            <table class="table my-leaderboard" id="scoreBoardTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col" class="text-end">Score</th>
+                        <th scope="col" class="text-end">Mode</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreBoard">
+                <!--                                                 
+                <tr>
+                    <td>John</td>
+                    <td class="text-end">13</td>
+                    <td class="text-end">K-2</td>
+                </tr> 
+                -->
+                </tbody>
+            </table>
+          </div>
+          <div id="scoreboardBottomOptions" class="d-flex flex-column w-100 mb-2">
+            <div id="scoreboardFilters">
+              <div id="scoreboardFiltersTitle" class="d-flex flex-row justify-content-center">Scoreboard Filters</div>
+              <ul class="nav nav-pills nav-justified mb-2" id="pillModeTab">
+                <li class="nav-item cursor-pointer border rounded-5">
+                  <a class="mode-pill nav-link rounded-5 active" id="pillModeNone" data-bs-toggle="pill">None</a>
+                </li>
+                <li class="nav-item cursor-pointer border rounded-5">
+                  <a class="mode-pill nav-link rounded-5" id="pillModeKill" data-bs-toggle="pill">K</a>
+                </li>
+                <li class="nav-item cursor-pointer border rounded-5">
+                  <a class="mode-pill nav-link rounded-5" id="pillModeSafe" data-bs-toggle="pill">S</a>
+                </li>
+              </ul>
+              <ul class="nav nav-pills nav-justified mb-2" id="pillSpeedTab">
+                <li class="nav-item cursor-pointer border rounded-5">
+                  <a class="speed-pill nav-link rounded-5 active" id="pillSpeedNone" data-bs-toggle="pill">None</a>
+                </li>
+                <li class="nav-item cursor-pointer border rounded-5">
+                  <a class="speed-pill nav-link rounded-5" id="pillSpeed1" data-bs-toggle="pill">1</a>
+                </li>
+                <li class="nav-item cursor-pointer border rounded-5">
+                  <a class="speed-pill nav-link rounded-5" id="pillSpeed2" data-bs-toggle="pill">2</a>
+                </li>
+                <li class="nav-item cursor-pointer border rounded-5">
+                  <a class="speed-pill nav-link rounded-5" id="pillSpeed3" data-bs-toggle="pill">3</a>
+                </li>
               </ul>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="my-btn btn btn-light" data-bs-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal fade" tabindex="-1" id="gameModal">
-        <div class="modal-dialog">
-          <div class="my-background modal-content">
-            <div class="modal-header">
-              <h5 id="modalWin" class="modal-title">You win!</h5>
-              <h5 id="modalLose" class="modal-title">You lose!</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close""></button>
-            </div>
-            <div class="modal-body">
-              <div>Score:&nbsp<span id="modalScore">0</span></div>
-              <div>Best:&nbsp<span id="modalBest">0</span></div>
-              <div>Game mode:&nbsp<span id="modalMode">K-2</span></div>
-            </div>
-            <div class="modal-footer d-flex flex-row justify-content-between">
-              <input type="text" id="modalName" class="my-name-input form-control rounded-start" placeholder="" autocomplete="off"/>
-              <div>
-                <button type="button" class="my-btn btn btn-light" id="submitModal">Submit</button>
-                <button type="button" class="my-btn btn btn-light" data-bs-dismiss="modal" id="modalReset">Reset</button>
+            <div id="submitRecordOptions" class="d-flex flex-row justify-content-between">
+              <div id="submitRecord" class="d-flex flex-column align-items-center">
+                <div>Submit record</div>
+                <button type="button" class="my-btn btn btn-light" id="submitMenu">→</button>
+              </div>
+              <div id="refreshBoard" class="d-flex flex-column align-items-center">
+                <div>Refresh board</div>
+                <button type="button" class="my-btn btn btn-light" id="refreshMenu">↻</button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="modal fade" id="pauseModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="my-background modal-content">
-            <div class="modal-header" style="border-bottom: none;">
-              <h5 class="modal-title">Game paused...</h5>
-              <button type="button" class="my-btn btn btn-light" data-bs-dismiss="modal" id="modalResume">Resume</button>
-            </div>
-          </div>
-        </div>
+    </div>
+    <div id="gameWindow" style="display: none;">
+      <div id="animationRowUp">
+        <div class="my-position -1-0"></div>
+        <div class="my-position -1-1"></div>
+        <div class="my-position -1-2"></div>
+        <div class="my-position -1-3"></div>
+        <div class="my-position -1-4"></div>
+        <div class="my-position -1-5"></div>
+        <div class="my-position -1-6"></div>
+        <div class="my-position -1-7"></div>
+        <div class="my-position -1-8"></div>
+        <div class="my-position -1-9"></div>
+        <div class="my-position -1-10"></div>
+        <div class="my-position -1-11"></div>
       </div>
-      <div class="container">
-        <div class="my-menu row border rounded d-flex justify-content-center align-items-center">
-            <div class="my-title my-menu-item col-sm-auto">Snake</div>
-            <div class="my-menu-item col-sm-auto">
-                <input type="text" id="inputName" class="my-name-input form-control rounded-start" placeholder="Your Name" autocomplete="off"/>
-                <button type="button" class="my-btn btn btn-light" id="btnStartReset">Start</button>
-                <button type="button" class="my-btn btn btn-light" id="btnPause" disabled>Pause</button>
-            </div>
-            <div class="my-menu-item col-sm-auto">
-              <button type="button" class="my-btn btn btn-light mb-2" id="infoModalButton">Info</button>
-            </div>
-        </div>
-        <div class="my-main row justify-content-between">
-          <div id="myStats" class="my-stats col-sm-3 d-flex flex-column justify-content-between align-items-center border rounded">
-            <div class="w-100">
-              <div class="d-flex justify-content-center">
-                Stats
-              </div>
-              <div id="statsBox" class="d-flex flex-column align-content-start">
-                <div class="my-player-name d-flex flex-row">
-                  <div>Name:&nbsp</div>
-                  <div id="playerName">Anon</div>
-                </div>
-                <div class="my-player-score d-flex flex-row">
-                  <div>Score:&nbsp</div>
-                  <div id="playerScore">0</div>
-                </div>
-                <div class="my-player-best d-flex flex-row">
-                  <div>Best:&nbsp</div>
-                  <div id="playerBest">0</div>
-                </div>
-                <div class="my-player-gamemode d-flex flex-row">
-                  <div>Game mode:&nbsp</div>
-                  <div id="playerMode">K-2</div>
-                </div>
-              </div>
-            </div>
-            <div class="my-options">
-              <div class="d-flex flex-row justify-content-center">
-              </div>
-              <div class="my-options-item d-flex justify-content-center">
-                Options
-              </div>
-              <div class="my-options-item form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="borderKillSwitch">
-                <label class="form-check-label" for="borderKillSwitch">Outer Border Kills</label>
-              </div>
-              <div class="btn-group-toggle" data-bs-toggle="buttons">
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
-                  <label class="my-check-space form-check-label" for="inlineRadio1">1</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
-                  <label class="my-check-space form-check-label" for="inlineRadio2">2</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3">
-                  <label class="my-check-space form-check-label" for="inlineRadio3">3</label>
-                </div>
-                Speed
-              </div>
-              <div class="my-options-item d-flex justify-content-between">
-                Arrows
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" role="switch" id="keySwitch">
-                </div>
-                WASD
-              </div>
-            </div>
-          </div>
-          <div id="myGame" class="my-game col-sm-6 d-flex justify-content-center align-items-center">
-            <div class="my-game-grid" id="my-game-grid" style="display: none;">
-                <div class="my-position border 0-0"></div>
-                <div class="my-position border 0-1"></div>
-                <div class="my-position border 0-2"></div>
-                <div class="my-position border 0-3"></div>
-                <div class="my-position border 0-4"></div>
-                <div class="my-position border 0-5"></div>
-                <div class="my-position border 0-6"></div>
-                <div class="my-position border 0-7"></div>
-                <div class="my-position border 0-8"></div>
-                <div class="my-position border 0-9"></div>
-                <div class="my-position border 0-10"></div>
-                <div class="my-position border 0-11"></div>
-
-                <div class="my-position border 1-0"></div>
-                <div class="my-position border 1-1"></div>
-                <div class="my-position border 1-2"></div>
-                <div class="my-position border 1-3"></div>
-                <div class="my-position border 1-4"></div>
-                <div class="my-position border 1-5"></div>
-                <div class="my-position border 1-6"></div>
-                <div class="my-position border 1-7"></div>
-                <div class="my-position border 1-8"></div>
-                <div class="my-position border 1-9"></div>
-                <div class="my-position border 1-10"></div>
-                <div class="my-position border 1-11"></div>
-
-                <div class="my-position border 2-0"></div>
-                <div class="my-position border 2-1"></div>
-                <div class="my-position border 2-2"></div>
-                <div class="my-position border 2-3"></div>
-                <div class="my-position border 2-4"></div>
-                <div class="my-position border 2-5"></div>
-                <div class="my-position border 2-6"></div>
-                <div class="my-position border 2-7"></div>
-                <div class="my-position border 2-8"></div>
-                <div class="my-position border 2-9"></div>
-                <div class="my-position border 2-10"></div>
-                <div class="my-position border 2-11"></div>
-
-                <div class="my-position border 3-0"></div>
-                <div class="my-position border 3-1"></div>
-                <div class="my-position border 3-2"></div>
-                <div class="my-position border 3-3"></div>
-                <div class="my-position border 3-4"></div>
-                <div class="my-position border 3-5"></div>
-                <div class="my-position border 3-6"></div>
-                <div class="my-position border 3-7"></div>
-                <div class="my-position border 3-8"></div>
-                <div class="my-position border 3-9"></div>
-                <div class="my-position border 3-10"></div>
-                <div class="my-position border 3-11"></div>
-
-                <div class="my-position border 4-0"></div>
-                <div class="my-position border 4-1">
-                  <div class="w-100 h-100 position-relative my-little-dot"></div>
-                </div>
-                <div class="my-position border 4-2">
-                  <div class="w-100 h-100 position-relative my-full-dot"></div>
-                </div>
-                <div class="my-position border 4-3">
-                  <div class="w-100 h-100 position-relative my-full-dot"></div>
-                </div>
-                <div class="my-position border 4-4">
-                  <div class="w-100 h-100 position-relative my-empty-dot"></div>
-                </div>
-                <div class="my-position border 4-5"></div>
-                <div class="my-position border 4-6"></div>
-                <div class="my-position border 4-7"></div>
-                <div class="my-position border 4-8"></div>
-                <div class="my-position border 4-9"></div>
-                <div class="my-position border 4-10"></div>
-                <div class="my-position border 4-11"></div>
-
-                <div class="my-position border 5-0"></div>
-                <div class="my-position border 5-1"></div>
-                <div class="my-position border 5-2"></div>
-                <div class="my-position border 5-3"></div>
-                <div class="my-position border 5-4"></div>
-                <div class="my-position border 5-5"></div>
-                <div class="my-position border 5-6"></div>
-                <div class="my-position border 5-7"></div>
-                <div class="my-position border 5-8"></div>
-                <div class="my-position border 5-9"></div>
-                <div class="my-position border 5-10"></div>
-                <div class="my-position border 5-11"></div>
-
-                <div class="my-position border 6-0"></div>
-                <div class="my-position border 6-1"></div>
-                <div class="my-position border 6-2"></div>
-                <div class="my-position border 6-3"></div>
-                <div class="my-position border 6-4"></div>
-                <div class="my-position border 6-5"></div>
-                <div class="my-position border 6-6"></div>
-                <div class="my-position border 6-7"></div>
-                <div class="my-position border 6-8"></div>
-                <div class="my-position border 6-9"></div>
-                <div class="my-position border 6-10"></div>
-                <div class="my-position border 6-11"></div>
-
-                <div class="my-position border 7-0"></div>
-                <div class="my-position border 7-1"></div>
-                <div class="my-position border 7-2"></div>
-                <div class="my-position border 7-3"></div>
-                <div class="my-position border 7-4"></div>
-                <div class="my-position border 7-5"></div>
-                <div class="my-position border 7-6"></div>
-                <div class="my-position border 7-7"></div>
-                <div class="my-position border 7-8"></div>
-                <div class="my-position border 7-9"></div>
-                <div class="my-position border 7-10"></div>
-                <div class="my-position border 7-11"></div>
-
-                <div class="my-position border 8-0"></div>
-                <div class="my-position border 8-1"></div>
-                <div class="my-position border 8-2"></div>
-                <div class="my-position border 8-3"></div>
-                <div class="my-position border 8-4"></div>
-                <div class="my-position border 8-5"></div>
-                <div class="my-position border 8-6"></div>
-                <div class="my-position border 8-7"></div>
-                <div class="my-position border 8-8"></div>
-                <div class="my-position border 8-9"></div>
-                <div class="my-position border 8-10"></div>
-                <div class="my-position border 8-11"></div>
-
-                <div class="my-position border 9-0"></div>
-                <div class="my-position border 9-1"></div>
-                <div class="my-position border 9-2"></div>
-                <div class="my-position border 9-3"></div>
-                <div class="my-position border 9-4"></div>
-                <div class="my-position border 9-5"></div>
-                <div class="my-position border 9-6"></div>
-                <div class="my-position border 9-7"></div>
-                <div class="my-position border 9-8"></div>
-                <div class="my-position border 9-9"></div>
-                <div class="my-position border 9-10"></div>
-                <div class="my-position border 9-11"></div>
-
-                <div class="my-position border 10-0"></div>
-                <div class="my-position border 10-1"></div>
-                <div class="my-position border 10-2"></div>
-                <div class="my-position border 10-3"></div>
-                <div class="my-position border 10-4"></div>
-                <div class="my-position border 10-5"></div>
-                <div class="my-position border 10-6"></div>
-                <div class="my-position border 10-7"></div>
-                <div class="my-position border 10-8"></div>
-                <div class="my-position border 10-9"></div>
-                <div class="my-position border 10-10"></div>
-                <div class="my-position border 10-11"></div>
-
-                <div class="my-position border 11-0"></div>
-                <div class="my-position border 11-1"></div>
-                <div class="my-position border 11-2"></div>
-                <div class="my-position border 11-3"></div>
-                <div class="my-position border 11-4"></div>
-                <div class="my-position border 11-5"></div>
-                <div class="my-position border 11-6"></div>
-                <div class="my-position border 11-7"></div>
-                <div class="my-position border 11-8"></div>
-                <div class="my-position border 11-9"></div>
-                <div class="my-position border 11-10"></div>
-                <div class="my-position border 11-11"></div>
-            </div>
-          </div>
-          <div id="myScore" class="my-score col-sm-3 d-flex flex-column justify-content-between align-items-center border rounded">
-            <div class="d-flex flex-column align-items-center w-100">
-              Scoreboard
-              <table class="table my-leaderboard" id="scoreBoardTable">
-                  <thead>
-                      <tr>
-                          <th scope="col">Name</th>
-                          <th scope="col" class="text-end">Score</th>
-                          <th scope="col" class="text-end">Mode</th>
-                      </tr>
-                  </thead>
-                  <tbody id="scoreBoard">
-                  <!--                                                 
-                  <tr>
-                      <td>John</td>
-                      <td class="text-end">13</td>
-                      <td class="text-end">K-2</td>
-                  </tr> 
-                  -->
-                  </tbody>
-              </table>
-            </div>
-            <div id="scoreboardBottomOptions" class="d-flex flex-column w-100 mb-2">
-              <div id="scoreboardFilters">
-                <div id="scoreboardFiltersTitle" class="d-flex flex-row justify-content-center">Scoreboard Filters</div>
-                <ul class="nav nav-pills nav-justified mb-2" id="pillModeTab">
-                  <li class="nav-item cursor-pointer border rounded-5">
-                    <a class="mode-pill nav-link rounded-5 active" id="pillModeNone" data-bs-toggle="pill">None</a>
-                  </li>
-                  <li class="nav-item cursor-pointer border rounded-5">
-                    <a class="mode-pill nav-link rounded-5" id="pillModeKill" data-bs-toggle="pill">K</a>
-                  </li>
-                  <li class="nav-item cursor-pointer border rounded-5">
-                    <a class="mode-pill nav-link rounded-5" id="pillModeSafe" data-bs-toggle="pill">S</a>
-                  </li>
-                </ul>
-                <ul class="nav nav-pills nav-justified mb-2" id="pillSpeedTab">
-                  <li class="nav-item cursor-pointer border rounded-5">
-                    <a class="speed-pill nav-link rounded-5 active" id="pillSpeedNone" data-bs-toggle="pill">None</a>
-                  </li>
-                  <li class="nav-item cursor-pointer border rounded-5">
-                    <a class="speed-pill nav-link rounded-5" id="pillSpeed1" data-bs-toggle="pill">1</a>
-                  </li>
-                  <li class="nav-item cursor-pointer border rounded-5">
-                    <a class="speed-pill nav-link rounded-5" id="pillSpeed2" data-bs-toggle="pill">2</a>
-                  </li>
-                  <li class="nav-item cursor-pointer border rounded-5">
-                    <a class="speed-pill nav-link rounded-5" id="pillSpeed3" data-bs-toggle="pill">3</a>
-                  </li>
-                </ul>
-              </div>
-              <div id="submitRecordOptions" class="d-flex flex-row justify-content-between">
-                <div id="submitRecord" class="d-flex flex-column align-items-center">
-                  <div>Submit record</div>
-                  <button type="button" class="my-btn btn btn-light" id="submitMenu">→</button>
-                </div>
-                <div id="refreshBoard" class="d-flex flex-column align-items-center">
-                  <div>Refresh board</div>
-                  <button type="button" class="my-btn btn btn-light" id="refreshMenu">↻</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div id="animationRowDown">
+        <div class="my-position 12-0"></div>
+        <div class="my-position 12-1"></div>
+        <div class="my-position 12-2"></div>
+        <div class="my-position 12-3"></div>
+        <div class="my-position 12-4"></div>
+        <div class="my-position 12-5"></div>
+        <div class="my-position 12-6"></div>
+        <div class="my-position 12-7"></div>
+        <div class="my-position 12-8"></div>
+        <div class="my-position 12-9"></div>
+        <div class="my-position 12-10"></div>
+        <div class="my-position 12-11"></div>
       </div>
-      <div id="gameWindow" style="display: none;">
-        <div id="animationRowUp">
-          <div class="my-position -1-0"></div>
-          <div class="my-position -1-1"></div>
-          <div class="my-position -1-2"></div>
-          <div class="my-position -1-3"></div>
-          <div class="my-position -1-4"></div>
-          <div class="my-position -1-5"></div>
-          <div class="my-position -1-6"></div>
-          <div class="my-position -1-7"></div>
-          <div class="my-position -1-8"></div>
-          <div class="my-position -1-9"></div>
-          <div class="my-position -1-10"></div>
-          <div class="my-position -1-11"></div>
-        </div>
-        <div id="animationRowDown">
-          <div class="my-position 12-0"></div>
-          <div class="my-position 12-1"></div>
-          <div class="my-position 12-2"></div>
-          <div class="my-position 12-3"></div>
-          <div class="my-position 12-4"></div>
-          <div class="my-position 12-5"></div>
-          <div class="my-position 12-6"></div>
-          <div class="my-position 12-7"></div>
-          <div class="my-position 12-8"></div>
-          <div class="my-position 12-9"></div>
-          <div class="my-position 12-10"></div>
-          <div class="my-position 12-11"></div>
-        </div>
-        <div id="animationColLeft">
-          <div class="my-position 0--1"></div>
-          <div class="my-position 1--1"></div>
-          <div class="my-position 2--1"></div>
-          <div class="my-position 3--1"></div>
-          <div class="my-position 4--1"></div>
-          <div class="my-position 5--1"></div>
-          <div class="my-position 6--1"></div>
-          <div class="my-position 7--1"></div>
-          <div class="my-position 8--1"></div>
-          <div class="my-position 9--1"></div>
-          <div class="my-position 10--1"></div>
-          <div class="my-position 11--1"></div>
-        </div>
-        <div id="animationColRight">
-          <div class="my-position 0-12"></div>
-          <div class="my-position 1-12"></div>
-          <div class="my-position 2-12"></div>
-          <div class="my-position 3-12"></div>
-          <div class="my-position 4-12"></div>
-          <div class="my-position 5-12"></div>
-          <div class="my-position 6-12"></div>
-          <div class="my-position 7-12"></div>
-          <div class="my-position 8-12"></div>
-          <div class="my-position 9-12"></div>
-          <div class="my-position 10-12"></div>
-          <div class="my-position 11-12"></div>
-        </div>
-        <div class="my-game-frame">
-          <div class="my-game-border border rounded"></div>
-        </div>
+      <div id="animationColLeft">
+        <div class="my-position 0--1"></div>
+        <div class="my-position 1--1"></div>
+        <div class="my-position 2--1"></div>
+        <div class="my-position 3--1"></div>
+        <div class="my-position 4--1"></div>
+        <div class="my-position 5--1"></div>
+        <div class="my-position 6--1"></div>
+        <div class="my-position 7--1"></div>
+        <div class="my-position 8--1"></div>
+        <div class="my-position 9--1"></div>
+        <div class="my-position 10--1"></div>
+        <div class="my-position 11--1"></div>
       </div>
-    </body>
+      <div id="animationColRight">
+        <div class="my-position 0-12"></div>
+        <div class="my-position 1-12"></div>
+        <div class="my-position 2-12"></div>
+        <div class="my-position 3-12"></div>
+        <div class="my-position 4-12"></div>
+        <div class="my-position 5-12"></div>
+        <div class="my-position 6-12"></div>
+        <div class="my-position 7-12"></div>
+        <div class="my-position 8-12"></div>
+        <div class="my-position 9-12"></div>
+        <div class="my-position 10-12"></div>
+        <div class="my-position 11-12"></div>
+      </div>
+      <div class="my-game-frame">
+        <div class="my-game-border border rounded"></div>
+      </div>
+    </div>
+  </body>
 </html>
