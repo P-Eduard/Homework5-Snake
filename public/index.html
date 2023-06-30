@@ -17,9 +17,9 @@
           </div>
           <div class="modal-body">
             <ul class="list-group list-group-flush">
-              <li class="my-background list-group-item">- Start without selecting between WASD and arrows. When the game is ready to go, just press a button and it will select automatically!</li>
-              <li class="my-background list-group-item">- Pause the game at any time with spacebar. And unpause with WASD or arrow, depending on which you have chosen.</li>
-              <li class="my-background list-group-item">- Reset the game when it ends with spacebar. This will keep your best score and you submit it later if you want.</li>
+              <li class="my-background list-group-item">Start without selecting between WASD and arrows. When the game is ready to go, just press a button and it will select automatically!</li>
+              <li class="my-background list-group-item">Pause the game at any time with spacebar. And unpause with WASD or arrow, depending on which you have chosen.</li>
+              <li class="my-background list-group-item">Reset the game when it ends with spacebar. This will keep your best score and you submit it later if you want.</li>
             </ul>
           </div>
           <div class="modal-footer">
@@ -42,7 +42,7 @@
             <div>Game mode:&nbsp<span id="modalMode">K-2</span></div>
           </div>
           <div class="modal-footer d-flex flex-row justify-content-between">
-            <input type="text" id="modalName" class="my-name-input form-control rounded-start" placeholder="" autocomplete="off" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."/>
+            <input type="text" id="modalName" class="my-name-input form-control rounded-start" placeholder="" autocomplete="off" data-bs-custom-class="my-popover" data-bs-toggle="popover" data-bs-placement="bottom" trigger="manual" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."/>
             <div>
               <button type="button" class="my-btn btn btn-light" id="submitModal">Submit</button>
               <button type="button" class="my-btn btn btn-light" data-bs-dismiss="modal" id="modalReset">Reset</button>
@@ -65,7 +65,7 @@
       <div class="my-menu row border rounded d-flex justify-content-center align-items-center">
         <div class="my-title my-menu-item col-sm-auto">Snake</div>
         <div class="my-menu-item col-sm-auto">
-          <input type="text" id="inputName" class="my-name-input form-control rounded-start" placeholder="Your Name" autocomplete="off" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."/>
+          <input type="text" id="inputName" class="my-name-input form-control rounded-start" placeholder="Your Name" autocomplete="off" data-bs-custom-class="my-popover" data-bs-toggle="popover" data-bs-placement="bottom" trigger="manual" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."/>
           <button type="button" class="my-btn btn btn-light" id="btnStartReset">Start</button>
           <button type="button" class="my-btn btn btn-light" id="btnPause" disabled>Pause</button>
         </div>
