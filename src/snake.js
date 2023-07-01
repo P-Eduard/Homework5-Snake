@@ -326,7 +326,7 @@ $(document).ready(function()
     function nameGood() // Allow the name.
     {
         console.log("Name good.");
-        $("#modalName, #inputName").popover('hide');
+        $("#my-name-popover-container, #my-modal-popover-container").popover('hide');
         $('#submitModal, #btnStartReset').removeAttr('disabled');
         // $('#modalName, #inputName').attr('trigger', 'manual');
     }
@@ -334,7 +334,7 @@ $(document).ready(function()
     function nameBad() // Don't allow the name.
     {
         console.log("Name bad.");
-        if(!$('#my-popover').is('*')) $("#gameModal").hasClass("show") ? $("#modalName").popover('show') : $("#inputName").popover('show');
+        if(!$('.my-popover').length) $("#gameModal").hasClass("show") ? $("#my-modal-popover-container").popover('show') : $("#my-name-popover-container").popover('show');
         $('#submitModal, #btnStartReset').attr('disabled', 'disabled');
         // $('#modalName, #inputName').attr('trigger', 'manual');
     }

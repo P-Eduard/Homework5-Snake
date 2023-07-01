@@ -42,7 +42,10 @@
             <div>Game mode:&nbsp<span id="modalMode">K-2</span></div>
           </div>
           <div class="modal-footer d-flex flex-row justify-content-between">
-            <input type="text" id="modalName" class="my-name-input form-control rounded-start" placeholder="" autocomplete="off" data-bs-custom-class="my-popover" data-bs-toggle="popover" data-bs-placement="bottom" trigger="manual" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."/>
+            <div class="d-flex flex-column justify-content-center">
+              <input type="text" id="modalName" class="my-name-input form-control rounded-start" placeholder="" autocomplete="off"></input>
+              <div id="my-modal-popover-container" class="my-popover-container" data-bs-custom-class="my-popover" data-bs-toggle="popover" data-bs-placement="bottom" trigger="manual" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."></div>
+            </div>
             <div>
               <button type="button" class="my-btn btn btn-light" id="submitModal">Submit</button>
               <button type="button" class="my-btn btn btn-light" data-bs-dismiss="modal" id="modalReset">Reset</button>
@@ -64,9 +67,12 @@
     <div class="container">
       <div class="my-menu row border rounded d-flex justify-content-center align-items-center">
         <div class="my-title my-menu-item col-sm-auto">Snake</div>
-        <div class="my-menu-item col-sm-auto">
-          <input type="text" id="inputName" class="my-name-input form-control rounded-start" placeholder="Your Name" autocomplete="off" data-bs-custom-class="my-popover" data-bs-toggle="popover" data-bs-placement="bottom" trigger="manual" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."/>
-          <button type="button" class="my-btn btn btn-light" id="btnStartReset">Start</button>
+        <div class="my-menu-item col-sm-auto d-flex flex-row">
+          <div class="d-flex flex-column justify-content-center my-mr">
+            <input type="text" id="inputName" class="my-name-input form-control rounded-start" placeholder="Your Name" autocomplete="off"></input>
+            <div id="my-name-popover-container" class="my-popover-container" data-bs-custom-class="my-popover" data-bs-toggle="popover" data-bs-placement="bottom" trigger="manual" data-bs-title="Invalid name." data-bs-content="Only letters and numbers up to 10 characters."></div>
+          </div>
+          <button type="button" class="my-btn btn btn-light my-mr" id="btnStartReset">Start</button>
           <button type="button" class="my-btn btn btn-light" id="btnPause" disabled>Pause</button>
         </div>
         <div class="my-menu-item col-sm-auto">

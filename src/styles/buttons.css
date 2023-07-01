@@ -63,3 +63,12 @@ input:disabled
     --bs-popover-header-color: #e2e9e2;
     --bs-popover-body-color: #e2e9e2;
 }
+.my-popover-container
+{
+    width: 100%;
+    height: 0px;
+}
+.my-mr
+{
+    margin-right: 0.7rem;
+}
